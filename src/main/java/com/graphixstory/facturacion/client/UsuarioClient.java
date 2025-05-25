@@ -3,7 +3,7 @@ package com.graphixstory.facturacion.client;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import com.graphixstory.facturacion.model.UsuarioDTO;
+import com.graphixstory.facturacion.dto.UsuarioDTO;
 
 import org.springframework.beans.factory.annotation.Value;
 
