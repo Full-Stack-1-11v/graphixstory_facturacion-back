@@ -1,4 +1,5 @@
-package com.graphixstory.facturacion.facturacion;
+package com.graphixstory.facturacion;
+
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
