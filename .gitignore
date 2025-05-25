@@ -31,3 +31,5 @@ build/
 
 ### VS Code ###
 .vscode/
+
+spring.datasource.password=AVNS_yu0F1SIHxKFobZy1qCZ

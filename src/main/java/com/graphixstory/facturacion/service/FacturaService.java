@@ -44,10 +44,10 @@ public class FacturaService {
         }
 
         Factura factura = facturaOpt.get();
-        // Llamas a la API de usuario para obtener los datos
+        // aqui llamamos a la api de usuario para obtener los datos
         UsuarioDTO usuario = usuarioClient.getUsuarioById(factura.getUsuarioId());
 
-        // Construimos el DTO combinando datos
+        // el DTO combinando datos
         FacturaUsuarioDto dto = new FacturaUsuarioDto();
         dto.setId(factura.getId());
         dto.setMontoTotal(factura.getMontoTotal());
