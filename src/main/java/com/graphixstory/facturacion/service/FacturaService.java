@@ -37,11 +37,11 @@ public class FacturaService {
             throw new IllegalArgumentException("El ID de usuario es obligatorio para crear una factura.");
         }
 
-        //Optional<UsuarioDTO> usuarioOpt = usuarioClient.getUsuarioById(facturaRequestDto.getUsuarioId());
+        Optional<UsuarioDTO> usuarioOpt = usuarioClient.getUsuarioById(facturaRequestDto.getUsuarioId());
 
-        //if (usuarioOpt.isEmpty()) {
-          //  throw new IllegalArgumentException("Usuario con ID " + facturaRequestDto.getUsuarioId() + " no encontrado en el servicio de usuarios.");
-       // }
+        if (usuarioOpt.isEmpty()) {
+            throw new IllegalArgumentException("Usuario con ID " + facturaRequestDto.getUsuarioId() + " no encontrado en el servicio de usuarios.");
+        }
 
         Factura nuevaFactura = new Factura();
         nuevaFactura.setMontoTotal(facturaRequestDto.getMontoTotal());
