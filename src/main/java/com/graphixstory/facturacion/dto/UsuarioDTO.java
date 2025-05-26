@@ -1,6 +1,8 @@
 package com.graphixstory.facturacion.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UsuarioDTO {
     
     private Integer id;

@@ -26,6 +26,7 @@ public class UsuarioClient {
         UsuarioDTO usuario = restTemplate.getForObject(baseUrl + "/usuarios/" + id, UsuarioDTO.class);
         return Optional.ofNullable(usuario);
     } catch (Exception e) {
+        e.printStackTrace();
         return Optional.empty();
         }
     }
