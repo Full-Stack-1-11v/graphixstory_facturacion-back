@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 public class UsuarioClient {
  private final RestTemplate restTemplate;
 
-    @Value("${usuarios.api.url}")
+    @Value("${USUARIOS_API_URL}")
     private String baseUrl;
 
     public UsuarioClient(RestTemplate restTemplate) {

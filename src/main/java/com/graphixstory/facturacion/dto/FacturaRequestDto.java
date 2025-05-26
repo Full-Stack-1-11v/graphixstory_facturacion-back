@@ -1,6 +1,6 @@
 package com.graphixstory.facturacion.dto;
 
-import lombok.Data; // Si usas Lombok, para getters, setters, etc.
+import lombok.Data; 
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
