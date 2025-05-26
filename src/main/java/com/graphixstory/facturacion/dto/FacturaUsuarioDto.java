@@ -1,5 +1,7 @@
 package com.graphixstory.facturacion.dto;
 
+import com.graphixstory.facturacion.model.Factura;
+
 public class FacturaUsuarioDto {
 
     private Long id;
@@ -10,8 +12,27 @@ public class FacturaUsuarioDto {
     
     private Integer usuarioId;
     private String nombreUsuario;
-    private String correoUsuario;
+    private String runUsuario;
 
+
+    public FacturaUsuarioDto() {
+    }
+
+    public FacturaUsuarioDto(Factura factura, UsuarioDTO usuario) {
+        this.id = factura.getId();
+        this.montoTotal = factura.getMontoTotal();
+        this.estado = factura.getEstado();
+
+        if (factura.getFechaEmision() != null) {
+            this.fechaEmision = factura.getFechaEmision().toString();
+        }
+
+        if (usuario != null) {
+            this.usuarioId = usuario.getId();
+            this.nombreUsuario = usuario.getNombre() + " " + usuario.getApellido(); 
+            this.runUsuario = usuario.getRun();
+        }
+    }
 
     public Long getId() {
         return id;
@@ -61,11 +82,11 @@ public class FacturaUsuarioDto {
         this.nombreUsuario = nombreUsuario;
     }
 
-    public String getCorreoUsuario() {
-        return correoUsuario;
+    public String getRunUsuario() {
+        return runUsuario;
     }
 
-    public void setCorreoUsuario(String correoUsuario) {
-        this.correoUsuario = correoUsuario;
+    public void setRunUsuario(String runUsuario) {
+        this.runUsuario = runUsuario;
     }
 }

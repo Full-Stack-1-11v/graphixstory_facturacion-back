@@ -5,6 +5,8 @@ import org.springframework.web.client.RestTemplate;
 
 import com.graphixstory.facturacion.dto.UsuarioDTO;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Value;
 
 
@@ -19,7 +21,12 @@ public class UsuarioClient {
         this.restTemplate = restTemplate;
     }
 
-    public UsuarioDTO getUsuarioById(Long id) {
-        return restTemplate.getForObject(baseUrl + "/usuarios/" + id, UsuarioDTO.class);
+   public Optional<UsuarioDTO> getUsuarioById(Integer id) {
+    try {
+        UsuarioDTO usuario = restTemplate.getForObject(baseUrl + "/usuarios/" + id, UsuarioDTO.class);
+        return Optional.ofNullable(usuario);
+    } catch (Exception e) {
+        return Optional.empty();
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.graphixstory.facturacion.controller;
 
+import com.graphixstory.facturacion.dto.FacturaRequestDto;
 import com.graphixstory.facturacion.dto.FacturaUsuarioDto;
 import com.graphixstory.facturacion.model.Factura;
 import com.graphixstory.facturacion.service.FacturaService;
@@ -38,8 +39,8 @@ private final FacturaService facturaService;
     }
 
     @PostMapping
-    public Factura createFactura(@RequestBody Factura factura) {
-        return facturaService.saveFactura(factura);
+    public Factura createFactura(@RequestBody FacturaRequestDto facturaRequestDto) {
+        return facturaService.saveFactura(facturaRequestDto);
     }
 
     @DeleteMapping("/{id}")

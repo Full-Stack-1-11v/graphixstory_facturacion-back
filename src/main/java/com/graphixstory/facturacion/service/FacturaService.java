@@ -5,17 +5,19 @@ import org.springframework.stereotype.Service;
 import com.graphixstory.facturacion.client.UsuarioClient;
 import com.graphixstory.facturacion.dto.FacturaUsuarioDto;
 import com.graphixstory.facturacion.dto.UsuarioDTO;
+import com.graphixstory.facturacion.dto.FacturaRequestDto;
 import com.graphixstory.facturacion.model.Factura;
 import com.graphixstory.facturacion.repository.FacturaRepository;
 import java.util.List;
 import java.util.Optional;
-
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 
 @Service
 public class FacturaService {
 
- private final FacturaRepository facturaRepository;
- private final UsuarioClient usuarioClient;
+    private final FacturaRepository facturaRepository;
+    private final UsuarioClient usuarioClient;
 
     public FacturaService(FacturaRepository facturaRepository, UsuarioClient usuarioClient) {
         this.facturaRepository = facturaRepository;
@@ -30,33 +32,56 @@ public class FacturaService {
         return facturaRepository.findById(id);
     }
 
-    public Factura saveFactura(Factura factura) {
-        return facturaRepository.save(factura);
+    public Factura saveFactura(FacturaRequestDto facturaRequestDto) {
+        if (facturaRequestDto.getUsuarioId() == null) {
+            throw new IllegalArgumentException("El ID de usuario es obligatorio para crear una factura.");
+        }
+
+        Optional<UsuarioDTO> usuarioOpt = usuarioClient.getUsuarioById(facturaRequestDto.getUsuarioId());
+
+        if (usuarioOpt.isEmpty()) {
+            throw new IllegalArgumentException("Usuario con ID " + facturaRequestDto.getUsuarioId() + " no encontrado en el servicio de usuarios.");
+        }
+
+        Factura nuevaFactura = new Factura();
+        nuevaFactura.setMontoTotal(facturaRequestDto.getMontoTotal());
+        nuevaFactura.setEstado(facturaRequestDto.getEstado());
+        
+        if (facturaRequestDto.getFechaEmision() != null && !facturaRequestDto.getFechaEmision().isEmpty()) {
+            try {
+                nuevaFactura.setFechaEmision(LocalDateTime.parse(facturaRequestDto.getFechaEmision()));
+            } catch (DateTimeParseException e) {
+                throw new IllegalArgumentException("Formato de fecha de emisión inválido. Se espera ISO 8601 (ej. 2025-05-25T15:30:00).");
+            }
+        } else {
+            nuevaFactura.setFechaEmision(LocalDateTime.now());
+        }
+
+        nuevaFactura.setUsuarioId(facturaRequestDto.getUsuarioId());
+
+        return facturaRepository.save(nuevaFactura);
     }
 
     public void deleteFactura(Long id) {
         facturaRepository.deleteById(id);
     }
-     public Optional<FacturaUsuarioDto> getFacturaConUsuarioById(Long id) {
+
+    public Optional<FacturaUsuarioDto> getFacturaConUsuarioById(Long id) {
         Optional<Factura> facturaOpt = facturaRepository.findById(id);
         if (facturaOpt.isEmpty()) {
             return Optional.empty();
         }
 
         Factura factura = facturaOpt.get();
-        // aqui llamamos a la api de usuario para obtener los datos
-        UsuarioDTO usuario = usuarioClient.getUsuarioById(factura.getUsuarioId());
+        Optional<UsuarioDTO> usuarioDtoOpt = usuarioClient.getUsuarioById(factura.getUsuarioId());
 
-        // el DTO combinando datos
-        FacturaUsuarioDto dto = new FacturaUsuarioDto();
-        dto.setId(factura.getId());
-        dto.setMontoTotal(factura.getMontoTotal());
-        dto.setEstado(factura.getEstado());
-        dto.setFechaEmision(factura.getFechaEmision().toString());
-        dto.setUsuarioId(usuario.getId());
-        dto.setNombreUsuario(usuario.getNombre());
-     
-
-        return Optional.of(dto);
+        if (usuarioDtoOpt.isPresent()) {
+            UsuarioDTO usuario = usuarioDtoOpt.get();
+            FacturaUsuarioDto dto = new FacturaUsuarioDto(factura, usuario);
+            return Optional.of(dto);
+        } else {
+            System.out.println("Usuario con ID " + factura.getUsuarioId() + " para factura " + id + " no encontrado. Devolviendo Optional vacío para FacturaUsuarioDto.");
+            return Optional.empty();
+        }
     }
 }

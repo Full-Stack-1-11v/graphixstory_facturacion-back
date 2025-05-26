@@ -15,7 +15,7 @@ public class Factura {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long usuarioId;
+    private Integer usuarioId;
 
     private Double montoTotal;
 
@@ -33,11 +33,11 @@ public class Factura {
         this.id = id;
     }
 
-    public Long getUsuarioId() {
+    public Integer getUsuarioId() {
         return usuarioId;
     }
 
-    public void setUsuarioId(Long usuarioId) {
+    public void setUsuarioId(Integer usuarioId) {
         this.usuarioId = usuarioId;
     }
 
