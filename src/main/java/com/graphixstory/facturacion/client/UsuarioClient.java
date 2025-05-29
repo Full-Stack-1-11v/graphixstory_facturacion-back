@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 public class UsuarioClient {
  private final RestTemplate restTemplate;
 
-    @Value("${USUARIOS_API_URL}")
+    @Value("http://localhost:8081/api") 
     private String baseUrl;
 
     public UsuarioClient(RestTemplate restTemplate) {
