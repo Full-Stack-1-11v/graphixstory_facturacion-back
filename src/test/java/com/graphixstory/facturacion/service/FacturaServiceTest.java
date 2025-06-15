@@ -3,6 +3,7 @@ package com.graphixstory.facturacion.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -135,5 +136,146 @@ public class FacturaServiceTest {
         verify(usuarioClient).getUsuarioById(1);
         verify(facturaRepository).save(any(Factura.class));
     }
+
+    @Test
+    public void testSaveFacturaSinUsuarioId() {
+        FacturaRequestDto request = new FacturaRequestDto();
+        request.setUsuarioId(null);
+        request.setMontoTotal(1500.0);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
+            facturaService.saveFactura(request);
+        });
+
+        assertEquals("El ID de usuario es obligatorio para crear una factura.", ex.getMessage());
+    }
+
+    @Test
+    public void testSaveFacturaUsuarioNoExiste() {
+        FacturaRequestDto request = new FacturaRequestDto();
+        request.setUsuarioId(999);
+        request.setMontoTotal(1500.0);
+
+        when(usuarioClient.getUsuarioById(999)).thenReturn(Optional.empty());
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
+            facturaService.saveFactura(request);
+        });
+
+        assertEquals("Usuario con ID 999 no encontrado en el servicio de usuarios.", ex.getMessage());
+    }
+
+    @Test
+    public void testSaveFacturaFechaInvalida() {
+        FacturaRequestDto request = new FacturaRequestDto();
+        request.setUsuarioId(1);
+        request.setMontoTotal(1500.0);
+        request.setFechaEmision("fecha-mal-formato");
+
+        UsuarioDTO usuario = new UsuarioDTO();
+        usuario.setId(1);
+        when(usuarioClient.getUsuarioById(1)).thenReturn(Optional.of(usuario));
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
+            facturaService.saveFactura(request);
+        });
+
+        assertEquals("Formato de fecha de emisión inválido. Se espera ISO 8601 (ej. 2025-05-25T15:30:00).", ex.getMessage());
+    }
+
+    @Test
+    public void testSaveFacturaSinFechaUsaFechaActual() {
+        FacturaRequestDto request = new FacturaRequestDto();
+        request.setUsuarioId(1);
+        request.setMontoTotal(1500.0);
+        request.setEstado("PENDIENTE");
+        request.setFechaEmision(null); // no fecha
+
+        UsuarioDTO usuario = new UsuarioDTO();
+        usuario.setId(1);
+        when(usuarioClient.getUsuarioById(1)).thenReturn(Optional.of(usuario));
+
+        when(facturaRepository.save(any(Factura.class))).thenAnswer(invocation -> {
+            Factura factura = invocation.getArgument(0);
+            factura.setId(1L);
+            return factura;
+        });
+
+        Factura resultado = facturaService.saveFactura(request);
+
+        assertNotNull(resultado);
+        assertEquals(1, resultado.getUsuarioId());
+        assertEquals(1500.0, resultado.getMontoTotal());
+        assertEquals("PENDIENTE", resultado.getEstado());
+        assertNotNull(resultado.getFechaEmision());
+        // No comparamos fecha exacta porque es now()
+
+        verify(usuarioClient).getUsuarioById(1);
+        verify(facturaRepository).save(any(Factura.class));
+    }
+
+    @Test
+    public void testDeleteFactura() {
+        Long idFactura = 1L;
+
+        facturaService.deleteFactura(idFactura);
+
+        verify(facturaRepository).deleteById(idFactura);
+    }
+
+    @Test
+    public void testGetFacturaConUsuarioByIdExitoso() {
+        Long idFactura = 1L;
+
+        Factura factura = new Factura();
+        factura.setId(idFactura);
+        factura.setUsuarioId(2);
+        factura.setMontoTotal(2000.0);
+        factura.setEstado("PAGADA");
+        factura.setFechaEmision(LocalDateTime.now());
+
+        UsuarioDTO usuario = new UsuarioDTO();
+        usuario.setId(2);
+        usuario.setNombre("Juan");
+
+        when(facturaRepository.findById(idFactura)).thenReturn(Optional.of(factura));
+        when(usuarioClient.getUsuarioById(2)).thenReturn(Optional.of(usuario));
+
+        var result = facturaService.getFacturaConUsuarioById(idFactura);
+
+        assertTrue(result.isPresent());
+        assertEquals(2, result.get().getUsuarioId());
+        assertEquals(idFactura, result.get().getId());
+    }
+
+    @Test
+    public void testGetFacturaConUsuarioById_FacturaNoExiste() {
+        Long idFactura = 99L;
+
+        when(facturaRepository.findById(idFactura)).thenReturn(Optional.empty());
+
+        var result = facturaService.getFacturaConUsuarioById(idFactura);
+
+        assertFalse(result.isPresent());
+    }
+    @Test
+    public void testGetFacturaConUsuarioById_UsuarioNoExiste() {
+        Long idFactura = 1L;
+
+        Factura factura = new Factura();
+        factura.setId(idFactura);
+        factura.setUsuarioId(5);
+        factura.setMontoTotal(2000.0);
+        factura.setEstado("PAGADA");
+        factura.setFechaEmision(LocalDateTime.now());
+
+        when(facturaRepository.findById(idFactura)).thenReturn(Optional.of(factura));
+        when(usuarioClient.getUsuarioById(5)).thenReturn(Optional.empty());
+
+        var result = facturaService.getFacturaConUsuarioById(idFactura);
+
+        assertFalse(result.isPresent());
+    }
+
 
 }
