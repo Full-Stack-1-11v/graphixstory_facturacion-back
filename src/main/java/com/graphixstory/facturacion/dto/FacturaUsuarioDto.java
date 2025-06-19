@@ -2,11 +2,22 @@ package com.graphixstory.facturacion.dto;
 
 import com.graphixstory.facturacion.model.Factura;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+
+@Schema(description = "DTO que combina los datos de una factura con la información del usuario asociado")
 public class FacturaUsuarioDto {
 
+    @Schema(description = "ID de la factura", example = "1")
     private Long id;
+
+    @Schema(description = "Monto total de la factura", example = "24990.0")
     private Double montoTotal;
+
+    @Schema(description = "Estado de la factura", example = "PAGADA")
     private String estado;
+
+    @Schema(description = "Fecha de emisión en formato ISO", example = "2025-06-01T10:15:30")
     private String fechaEmision;
 
     
@@ -14,7 +25,7 @@ public class FacturaUsuarioDto {
     private String nombreUsuario;
     private String runUsuario;
 
-
+   
     public FacturaUsuarioDto() {
     }
 
