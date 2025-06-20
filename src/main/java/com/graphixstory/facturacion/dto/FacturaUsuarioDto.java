@@ -20,9 +20,13 @@ public class FacturaUsuarioDto {
     @Schema(description = "Fecha de emisión en formato ISO", example = "2025-06-01T10:15:30")
     private String fechaEmision;
 
-    
+    @Schema(description = "ID del usuario asociado a la factura", example = "3")
     private Integer usuarioId;
+
+    @Schema(description = "Nombre completo del usuario", example = "Juan Pérez")
     private String nombreUsuario;
+
+    @Schema(description = "RUN del usuario", example = "12.345.678-9")
     private String runUsuario;
 
    
