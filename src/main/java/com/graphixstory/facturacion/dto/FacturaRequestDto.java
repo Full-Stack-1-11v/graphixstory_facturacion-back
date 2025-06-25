@@ -8,6 +8,10 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 
+/**
+ * DTO utilizado para recibir los datos necesarios para crear una nueva factura.
+ * Incluye validaciones y anotaciones para la documentación Swagger.
+ */
 @Data 
 @NoArgsConstructor 
 @AllArgsConstructor 

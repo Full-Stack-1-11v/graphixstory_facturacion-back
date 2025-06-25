@@ -2,6 +2,10 @@ package com.graphixstory.facturacion.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+/**
+ * DTO que representa los datos básicos de un usuario.
+ * Utilizado para transferir información entre servicios.
+ */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UsuarioDTO {
     

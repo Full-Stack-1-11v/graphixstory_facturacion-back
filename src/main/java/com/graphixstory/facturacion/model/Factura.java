@@ -8,6 +8,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+/**
+ * Entidad que representa una factura en la base de datos.
+ * Contiene información del usuario, monto, estado y fecha de emisión.
+ */
 @Entity
 @Table(name = "facturas")
 public class Factura {

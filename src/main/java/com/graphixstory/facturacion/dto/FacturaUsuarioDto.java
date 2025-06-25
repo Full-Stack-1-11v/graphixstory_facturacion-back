@@ -4,7 +4,10 @@ import com.graphixstory.facturacion.model.Factura;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-
+/**
+ * DTO que combina los datos de una factura con la información del usuario asociado.
+ * Se utiliza para enviar datos compuestos al cliente.
+ */
 @Schema(description = "DTO que combina los datos de una factura con la información del usuario asociado")
 public class FacturaUsuarioDto {
 
@@ -29,10 +32,18 @@ public class FacturaUsuarioDto {
     @Schema(description = "RUN del usuario", example = "12.345.678-9")
     private String runUsuario;
 
-   
+    /**
+     * Constructor vacío necesario para frameworks y serialización.
+     */
     public FacturaUsuarioDto() {
     }
 
+    /**
+     * Constructor que crea un DTO combinando datos de factura y usuario.
+     *
+     * @param factura Objeto factura del sistema
+     * @param usuario Objeto UsuarioDTO con los datos del usuario asociado
+     */
     public FacturaUsuarioDto(Factura factura, UsuarioDTO usuario) {
         this.id = factura.getId();
         this.montoTotal = factura.getMontoTotal();

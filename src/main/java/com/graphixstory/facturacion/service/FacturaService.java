@@ -13,25 +13,54 @@ import java.util.Optional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 
+/**
+ * Servicio que gestiona la lógica de negocio relacionada con las facturas.
+ * Permite crear, obtener y eliminar facturas, además de consultar datos combinados con usuario.
+ */
 @Service
 public class FacturaService {
 
     private final FacturaRepository facturaRepository;
     private final UsuarioClient usuarioClient;
 
+    /**
+     * Constructor que inyecta dependencias del repositorio de facturas y el cliente de usuarios.
+     *
+     * @param facturaRepository Repositorio para operaciones CRUD sobre facturas
+     * @param usuarioClient Cliente REST para obtener datos del usuario
+     */
     public FacturaService(FacturaRepository facturaRepository, UsuarioClient usuarioClient) {
         this.facturaRepository = facturaRepository;
         this.usuarioClient = usuarioClient;
     }
 
+    /**
+     * Obtiene la lista de todas las facturas registradas.
+     *
+     * @return Lista de facturas
+     */
     public List<Factura> getAllFacturas() {
         return facturaRepository.findAll();
     }
 
+    /**
+     * Busca una factura por su ID.
+     *
+     * @param id Identificador de la factura
+     * @return Optional con la factura si existe
+     */
     public Optional<Factura> getFacturaById(Long id) {
         return facturaRepository.findById(id);
     }
 
+     /**
+     * Guarda una nueva factura en la base de datos a partir de un DTO de entrada.
+     * Valida la existencia del usuario y el formato de la fecha.
+     *
+     * @param facturaRequestDto DTO con los datos de la factura a crear
+     * @return Factura creada y guardada
+     * @throws IllegalArgumentException si faltan datos requeridos o la fecha tiene formato inválido
+     */
     public Factura saveFactura(FacturaRequestDto facturaRequestDto) {
         if (facturaRequestDto.getUsuarioId() == null) {
             throw new IllegalArgumentException("El ID de usuario es obligatorio para crear una factura.");
@@ -62,10 +91,23 @@ public class FacturaService {
         return facturaRepository.save(nuevaFactura);
     }
 
+
+
+      /**
+     * Elimina una factura por su ID.
+     *
+     * @param id Identificador de la factura a eliminar
+     */
     public void deleteFactura(Long id) {
         facturaRepository.deleteById(id);
     }
 
+    /**
+     * Obtiene los datos de una factura junto con la información del usuario asociado.
+     *
+     * @param id ID de la factura
+     * @return Optional con el DTO combinado, o vacío si no se encuentra la factura o el usuario
+     */
     public Optional<FacturaUsuarioDto> getFacturaConUsuarioById(Long id) {
         Optional<Factura> facturaOpt = facturaRepository.findById(id);
         if (facturaOpt.isEmpty()) {

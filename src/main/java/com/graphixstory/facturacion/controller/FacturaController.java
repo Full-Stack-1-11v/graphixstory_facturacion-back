@@ -1,5 +1,6 @@
 package com.graphixstory.facturacion.controller;
 
+import com.graphixstory.facturacion.assemblers.FacturaModelAssembler;
 import com.graphixstory.facturacion.dto.FacturaRequestDto;
 import com.graphixstory.facturacion.dto.FacturaUsuarioDto;
 import com.graphixstory.facturacion.model.Factura;
@@ -11,8 +12,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
@@ -27,9 +33,11 @@ import java.util.List;
 public class FacturaController {
 
 private final FacturaService facturaService;
+private final FacturaModelAssembler assembler;
 
-    public FacturaController(FacturaService facturaService) {
+    public FacturaController(FacturaService facturaService,FacturaModelAssembler assembler) {
         this.facturaService = facturaService;
+        this.assembler = assembler;
     }
 
      /**
@@ -42,9 +50,18 @@ private final FacturaService facturaService;
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Lista de facturas obtenida correctamente")
     })
-    public List<Factura> getAllFacturas() {
-        return facturaService.getAllFacturas();
-    }
+    public CollectionModel<EntityModel<Factura>> getAllFacturas() {
+    List<Factura> facturas = facturaService.getAllFacturas();
+
+    List<EntityModel<Factura>> facturasModel = facturas.stream()
+            .map(assembler::toModel)
+            .collect(Collectors.toList());
+
+    return CollectionModel.of(
+            facturasModel,
+            linkTo(methodOn(FacturaController.class).getAllFacturas()).withSelfRel()
+    );
+}
     
      /**
      * Obtiene una factura junto con datos del usuario asociado.
@@ -77,8 +94,9 @@ private final FacturaService facturaService;
         @ApiResponse(responseCode = "200", description = "Factura encontrada"),
         @ApiResponse(responseCode = "404", description = "Factura no encontrada")
     })
-    public ResponseEntity<Factura> getFacturaById(@PathVariable Long id) {
+    public ResponseEntity<EntityModel<Factura>> getFacturaById(@PathVariable Long id) {
         return facturaService.getFacturaById(id)
+                .map(assembler::toModel)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
