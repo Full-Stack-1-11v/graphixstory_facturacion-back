@@ -10,6 +10,10 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.hateoas.CollectionModel;
@@ -32,6 +36,8 @@ import java.util.stream.Collectors;
 @Tag (name="Facturas", description = "Operaciones relacionadas con la facturacion Edutech")
 public class FacturaController {
 
+private static final Logger logger = LoggerFactory.getLogger(FacturaController.class);
+
 private final FacturaService facturaService;
 private final FacturaModelAssembler assembler;
 
@@ -51,17 +57,18 @@ private final FacturaModelAssembler assembler;
         @ApiResponse(responseCode = "200", description = "Lista de facturas obtenida correctamente")
     })
     public CollectionModel<EntityModel<Factura>> getAllFacturas() {
-    List<Factura> facturas = facturaService.getAllFacturas();
+        logger.info("GET /api/facturas - Solicitando todas las facturas");
 
-    List<EntityModel<Factura>> facturasModel = facturas.stream()
-            .map(assembler::toModel)
-            .collect(Collectors.toList());
+        List<Factura> facturas = facturaService.getAllFacturas();
+        List<EntityModel<Factura>> facturasModel = facturas.stream()
+                .map(assembler::toModel)
+                .collect(Collectors.toList());
 
-    return CollectionModel.of(
-            facturasModel,
-            linkTo(methodOn(FacturaController.class).getAllFacturas()).withSelfRel()
-    );
-}
+        return CollectionModel.of(
+                facturasModel,
+                linkTo(methodOn(FacturaController.class).getAllFacturas()).withSelfRel()
+        );
+    }
     
      /**
      * Obtiene una factura junto con datos del usuario asociado.
@@ -75,10 +82,17 @@ private final FacturaModelAssembler assembler;
         @ApiResponse(responseCode = "200", description = "Factura con usuario encontrada"),
         @ApiResponse(responseCode = "404", description = "Factura no encontrada o sin usuario asociado")
     })
-    public ResponseEntity<FacturaUsuarioDto> getFacturaConUsuario( @Parameter(description = "ID de la factura a consultar", example = "1")@PathVariable Long id) {
+    public ResponseEntity<FacturaUsuarioDto> getFacturaConUsuario( 
+        @Parameter(description = "ID de la factura a consultar", example = "1")@PathVariable Long id) {
+
+        logger.info("GET /api/facturas/{}/detalle - Solicitando factura con usuario", id);
+
         return facturaService.getFacturaConUsuarioById(id)
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseGet(() -> {
+                    logger.warn("Factura con detalles de usuario no encontrada para ID: {}", id);
+                    return ResponseEntity.notFound().build();
+                });
     }
 
 
@@ -95,10 +109,14 @@ private final FacturaModelAssembler assembler;
         @ApiResponse(responseCode = "404", description = "Factura no encontrada")
     })
     public ResponseEntity<EntityModel<Factura>> getFacturaById(@PathVariable Long id) {
+        logger.info("GET /api/facturas/{} - Solicitando factura por ID", id);
         return facturaService.getFacturaById(id)
                 .map(assembler::toModel)
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseGet(() -> {
+                    logger.warn("Factura no encontrada para ID: {}", id);
+                    return ResponseEntity.notFound().build();
+                });
     }
 
 
@@ -115,6 +133,7 @@ private final FacturaModelAssembler assembler;
         @ApiResponse(responseCode = "400", description = "Datos inválidos o usuario no existente")
     })
     public Factura createFactura(@RequestBody FacturaRequestDto facturaRequestDto) {
+        logger.info("POST /api/facturas - Creando nueva factura para usuario ID: {}", facturaRequestDto.getUsuarioId());
         return facturaService.saveFactura(facturaRequestDto);
     }
 
@@ -132,6 +151,7 @@ private final FacturaModelAssembler assembler;
         @ApiResponse(responseCode = "404", description = "Factura no encontrada")
     })
     public ResponseEntity<Void> deleteFactura(@PathVariable Long id) {
+        logger.info("DELETE /api/facturas/{} - Eliminando factura", id);
         facturaService.deleteFactura(id);
         return ResponseEntity.noContent().build();
     }

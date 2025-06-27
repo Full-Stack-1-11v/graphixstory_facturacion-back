@@ -8,6 +8,8 @@ import com.graphixstory.facturacion.dto.UsuarioDTO;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Cliente REST que se comunica con el microservicio de usuarios.
@@ -15,6 +17,9 @@ import org.springframework.beans.factory.annotation.Value;
  */
 @Component
 public class UsuarioClient {
+
+ private static final Logger logger = LoggerFactory.getLogger(UsuarioClient.class);
+
  private final RestTemplate restTemplate;
 
   /**
@@ -41,12 +46,21 @@ public class UsuarioClient {
      * @return Optional con UsuarioDTO si se encuentra, o vacío si ocurre un error o no existe
      */
    public Optional<UsuarioDTO> getUsuarioById(Integer id) {
-    try {
-        UsuarioDTO usuario = restTemplate.getForObject(baseUrl + "/usuarios/" + id, UsuarioDTO.class);
-        return Optional.ofNullable(usuario);
-    } catch (Exception e) {
-        e.printStackTrace();
-        return Optional.empty();
+        String url = baseUrl + "/usuarios/" + id;
+        logger.info("Realizando solicitud al servicio de usuarios: {}", url);
+
+
+        try {
+            UsuarioDTO usuario = restTemplate.getForObject(url, UsuarioDTO.class);
+            if (usuario != null) {
+                logger.info("Usuario obtenido exitosamente para ID: {}", id);
+            } else {
+                logger.warn("Usuario no encontrado para ID: {}", id);
+            }
+            return Optional.ofNullable(usuario);
+        } catch (Exception e) {
+            logger.error("Error al obtener el usuario con ID {}: {}", id, e.getMessage());
+            return Optional.empty();
         }
     }
 }
