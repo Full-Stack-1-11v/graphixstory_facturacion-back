@@ -131,14 +131,7 @@ public class FacturaControllerTest {
 
         mockMvc.perform(post("/api/facturas")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                        {
-                            "usuarioId": 1,
-                            "estado": "PAGADA",
-                            "montoTotal": 1200.0,
-                            "fechaEmision": "2025-06-01T10:15:30"
-                        }
-                        """))
+                .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.estado").value("PAGADA"));
