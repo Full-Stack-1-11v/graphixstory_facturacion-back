@@ -6,6 +6,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
+import org.springframework.lang.NonNull;
 
 import com.graphixstory.facturacion.controller.FacturaController;
 import com.graphixstory.facturacion.model.Factura;
@@ -13,6 +14,7 @@ import com.graphixstory.facturacion.model.Factura;
 @Component
 public class FacturaModelAssembler implements RepresentationModelAssembler<Factura, EntityModel<Factura>>{
  @Override
+ @NonNull
     public EntityModel<Factura> toModel(Factura factura) {
         Link selfLink = linkTo(methodOn(FacturaController.class).getFacturaById(factura.getId()))
                 .withSelfRel();
