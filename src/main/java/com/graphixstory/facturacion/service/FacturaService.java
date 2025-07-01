@@ -103,7 +103,7 @@ public class FacturaService {
 
         Factura facturaGuardada = facturaRepository.save(nuevaFactura);
         logger.info("Factura creada exitosamente con ID: {}", facturaGuardada.getId());
-        
+
         return facturaGuardada;
     }
 
@@ -117,6 +117,7 @@ public class FacturaService {
     public void deleteFactura(Long id) {
         logger.info("Eliminando factura con ID: {}", id);
         facturaRepository.deleteById(id);
+        logger.info("Factura con ID {} eliminada correctamente", id);
     }
 
     /**
